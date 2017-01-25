@@ -71,7 +71,8 @@ exit_on_error $? "w3m not found"
 
 for site in $SITES
 do
-    printf "Getting $site"
+    STR="Getting $site"
+    echo -n "$STR"
     TMP_FILE=$TMP_DIR/$(echo $site | sed 's,[/.],_,g').txt
     if [ ! -f $TMP_FILE ] || [ "$(find $TMP_FILE -mmin +$EXPIRATION_MINUTES)" != "" ] 
     then
@@ -79,7 +80,7 @@ do
         exit_on_error $? "Failed downloading $site"
     fi
     printf "\r"
-    for i in $(seq 1 50) ; do printf " "; done
+    for i in $(seq 1 ${#STR}) ; do printf " "; done
     printf "\r"
 done
 
