@@ -1,0 +1,117 @@
+#!/bin/bash
+
+EXT_IP_FILE="/tmp/myExtIP"
+TIMEOUT=7
+KNOWN_DNS_IP="8.8.8.8"
+WLAN0_IP="Unresolved"
+ETH0_IP="Unresolved"
+GW="Unresolved"
+EXTERNAL_IP="Unresolved"
+KNOWN_DNS="Unresolved"
+DNS_USED="Unresolved"
+WLAN="Unresolved"
+PACKET_LOSS="Unresolved"
+AVG_RTT="Unresolved"
+ETH=$(ifconfig |grep eth|awk '{print $1;}')
+getIPs(){
+  WLAN0_IP=`ifconfig wlan0|grep 'inet addr'|rev|awk '{print $3;}'|rev|cut -d':' -f2`
+  ETH0_IP=`ifconfig $ETH|grep 'inet addr'|rev|awk '{print $3;}'|rev|cut -d':' -f2`
+  GW=`netstat -rn|grep ^0.0.0.0|awk '{print $2;}'`
+}
+getExtIP(){
+    curl ipecho.net/plain 2>/dev/null > $EXT_IP_FILE &
+    pid=$!
+    ps -p $pid &> /dev/null && sleep $TIMEOUT
+    ps -p $pid &> /dev/null # curl still running...
+    if [[ $? -eq 0 ]]
+    then
+	echo -e "\nTimed out after $TIMEOUT secs, ignoring external IP"
+	echo "Aborting fetching external IP"
+	kill $pid &> /dev/null
+	echo -n "Trying alterative host..."
+	curl ifconfig.me 2>/dev/null > $EXT_IP_FILE &
+	pid=$!
+	ps -p $pid &> /dev/null && sleep $TIMEOUT
+	ps -p $pid &> /dev/null
+	if [[ $? -eq 0 ]]
+	then
+	    echo -e "\nTimed out after $TIMEOUT secs, giving up on ext. IP"
+	    kill $pid &> /dev/null
+	    echo "Unresolved (ipecho/ifconfig.me)" > $EXT_IP_FILE
+	fi
+    fi
+    EXTERNAL_IP=`cat $EXT_IP_FILE`
+    if [[ -z $EXTERNAL_IP ]]
+    then
+	EXTERNAL_IP="Could not resolve"
+	# Curl finished normally but came up empty
+    fi
+}
+getReverseName(){
+    KNOWN_DNS=`host -s $KNOWN_DNS_IP|rev|awk '{print $1;}'|rev`
+    if [ $KNOWN_DNS = "reached" ]
+    then
+	KNOWN_DNS="Failed"
+    fi
+}
+getConfig(){
+    DNS_USED=`grep nameserver /etc/resolv.conf|awk '{print $2;}'`
+    WLAN=`iwconfig wlan0|grep SSID|rev|awk '{print $1;}'|rev`
+}
+getPingStats(){
+    ping -c 10 8.8.8.8 2>&1| egrep 'packet|rtt' > /tmp/pingstats
+    PACKET_LOSS=`grep loss /tmp/pingstats|tr ' ' '\n'|grep %`
+    AVG_RTT=`grep min/avg /tmp/pingstats|cut -d'/' -f5`
+    if [ -z $AVG_RTT ]
+    then
+	AVG_RTT="N/A - ping failed"
+    fi
+}
+tryPinging(){
+    NC_MESSAGE=""
+    echo "$DNS_USED 53"
+    nc -w 2 "$DNS_USED" "53" && NC_MESSAGE=$(echo "However, I could netcat to $DNS_USED 53")
+    echo -n "Could ping DNS?      "
+    (ping -c 1 $DNS_USED &> /dev/null && echo Yes) || echo "No $NC_MESSAGE"
+    echo -n "Could ping gateway?  "
+    (ping -c 1 $GW &> /dev/null && echo Yes) || echo "No"
+    echo -n "Could ping $KNOWN_DNS_IP?  "
+    echo "$KNOWN_DNS_IP 53"
+    nc -w 2 "$KNOWN_DNS_IP" "53" && NC_MESSAGE=$(echo "However, I could netcat to $KNOWN_DNS_IP 53")
+    (ping -c 1 $KNOWN_DNS_IP &> /dev/null && echo "Yes") || echo "No. $NC_MESSAGE Is outbound ping blocked in your FW?"
+}
+## Main - Script starts here ##
+echo -n "Looking up IPs and gateway... "
+getIPs
+echo "Done!"
+echo -n "Trying to get external IP... "
+getExtIP
+echo "Done!"
+echo -n "Trying to reverse lookup an IP, please be patient... "
+getReverseName
+echo "Done!"
+echo "Looking up DNS and WLAN configuration on this machine... "
+getConfig
+echo "Done!"
+echo "First three hops to $KNOWN_DNS_IP:"
+traceroute -m 3 $KNOWN_DNS_IP
+echo "Checking packet loss and averages..."
+getPingStats
+echo
+cat <<EOF
+========================================
+Summary:
+WLAN if IP:          $WLAN0_IP
+Eth if IP:           $ETH0_IP             
+Gateway:             $GW
+Extern IP:           $EXTERNAL_IP
+DNS used:            $DNS_USED
+Connected to WLAN:   $WLAN
+Average packet loss: $PACKET_LOSS
+Average RTT(ms):     ${AVG_RTT}
+Rev. lookup $KNOWN_DNS_IP: $KNOWN_DNS
+EOF
+tryPinging
+echo ========================================
+# TODO: mtr -c 5 mobilplaneten.se -r -w|grep -v '???'|sort -rnk 6
+# Sort out the highest RTT if any line has more than 0% loss
