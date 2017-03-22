@@ -235,15 +235,51 @@ gen_name() {
     FAM=${FAMILY_NAMES[$FAM_IDX]}
 }
 
+print_person_sub()
+{
+    GIV_=$1
+    FAM_=$2
+    
+    if [ $SQL_MODE ]
+    then
+        echo -n "("
+    fi
+    echo -n "$GIV_"
+    if [ $SQL_MODE ]
+    then
+        echo -n ", "
+    else
+        echo -n " "
+    fi
+    echo -n $FAM_
+    if [ $SQL_MODE ]
+    then
+        echo -n ")"
+    else
+        echo
+    fi
+
+}
+
 print_person(){
     gen_name
     if [ "$GIRL_" = "true" ]
     then
-        echo "$GIRL $FAM"
-    else
-        echo "$BOY $FAM"
+        print_person_sub $GIRL $FAM
     fi
 
+    if [ "$GIRL_" = "true" ] && [ "$BOY_" = "true" ]
+    then
+        if [ $SQL_MODE ]
+        then
+            echo -n ", "
+        fi
+    fi
+    
+    if [ "$BOY_" = "true" ]
+    then
+        print_person_sub $BOY $FAM
+    fi
 }
 
 usage()
@@ -273,6 +309,9 @@ usage()
     echo "  --female, -f " 
     echo "     generate male name(s)"
     echo ""
+    echo "  --mixed " 
+    echo "     generate mixed male and female name(s)"
+    echo ""
     echo "EXAMPLES"
     echo ""
     echo "  $PROG --male"
@@ -287,7 +326,7 @@ usage()
     echo "  $PROG --male 100"
     echo "     generates 100 female names"
     echo ""
-    echo "  $PROG --m -f 10"
+    echo "  $PROG --mixed 10"
     echo "     generates 5 female names and 5 male names"
     echo ""
 }
@@ -306,6 +345,17 @@ while [ "$1" != "" ]
                   BOY_=true
 #                  echo "$BOY $FAM"
                   ;;
+              "--mixed")
+                  GIRL_=true
+                  BOY_=true
+#                  echo "$BOY $FAM"
+                  ;;
+              "--sql")
+                  GIRL_=true
+                  BOY_=true
+                  SQL_MODE=true
+#                  echo "$BOY $FAM"
+                  ;;
               "--help"|"-h")
                   usage
                   exit 0
@@ -322,6 +372,10 @@ then
     do
         print_person
         NR=$(( $NR -1 ))
+        if [ $SQL_MODE ] && [ $NR -gt 0 ] 
+        then
+             echo -n ", "
+        fi
     done
 else
     print_person
