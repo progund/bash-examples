@@ -246,19 +246,69 @@ print_person(){
 
 }
 
+usage()
+{
+    PROG=$(basename $0)
+    echo "NAME"
+    echo "    $PROG [OPTIONS] [NR] "
+    echo ""
+    echo "SYNOPSIS"
+    echo "    Generate one or many (Swedish) names male or female."
+    echo "    If you specify  number, that many names are"
+    echo "    generated. Name are generated in the following format"
+    echo ""
+    echo "        Givenname Familyname"
+    echo ""
+    echo "    The names generated are based on the most common"
+    echo "    names in Sweden."
+    echo ""
+    echo "OPTIONS"
+    echo ""
+    echo "  --help, -h " 
+    echo "     print help text, that is this text :) " 
+    echo ""
+    echo "  --male, -m " 
+    echo "     generate male name(s). This is default"
+    echo ""
+    echo "  --female, -f " 
+    echo "     generate male name(s)"
+    echo ""
+    echo "EXAMPLES"
+    echo ""
+    echo "  $PROG --male"
+    echo "     generates one male name"
+    echo ""
+    echo "  $PROG --female"
+    echo "     generates one female name"
+    echo ""
+    echo "  $PROG --female 10"
+    echo "     generates 10 female names"
+    echo ""
+    echo "  $PROG --male 100"
+    echo "     generates 100 female names"
+    echo ""
+    echo "  $PROG --m -f 10"
+    echo "     generates 5 female names and 5 male names"
+    echo ""
+}
+
 NR=1
 while [ "$1" != "" ]
       do
           case "$1" in
-              "--girl")
+              "--female"|"-f")
                   GIRL_=true
                   BOY_=false
 #                  echo "$GIRL $FAM"
                   ;;
-              "--boy")
+              "--male"|"-m")
                   GIRL_=false
                   BOY_=true
 #                  echo "$BOY $FAM"
+                  ;;
+              "--help"|"-h")
+                  usage
+                  exit 0
                   ;;
               *)
                   NR=$1
