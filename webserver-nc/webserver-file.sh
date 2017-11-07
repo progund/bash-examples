@@ -18,17 +18,15 @@ find_file_type()
 {
     FILE_NAME=$(basename $FILE | tr [A-Z] [a-z])
     FILE_SUFF=$(echo $FILE_NAME | sed 's,.*\.,,g')
-    echo $FILE_NAME
-    echo $FILE_SUFF
+#    echo $FILE_NAME
+#    echo $FILE_SUFF
 
     case "$FILE_SUFF" in
         "json")
             TYPE="application/json";
-            break;
             ;;
         "html")
             TYPE="text/html; charset=utf-8"
-            break;
             ;;
         *)
             echo "Unknown file type"
@@ -39,7 +37,7 @@ find_file_type()
 
 header()
 {
-    echo "HTTP/1.1 200 OK"
+    echo "HTTP/1.0 200 OK"
     echo "Connection: close"
     echo "Date: $(date)"
     echo "Server: netcat special deal"
