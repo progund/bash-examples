@@ -25,6 +25,9 @@ find_file_type()
         "json")
             TYPE="application/json";
             ;;
+        "png")
+            TYPE="image/png";
+            ;;
         "html")
             TYPE="text/html; charset=utf-8"
             ;;
