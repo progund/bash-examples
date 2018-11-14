@@ -35,6 +35,6 @@ CONTENT=$(content)
 CLENGTH=$(echo $CONTENT | wc -c)
 LENGTH=$(( $CLENGTH + 1 ))
 header
-content
+echo ${CONTENT}
 exec 1>&-
 
