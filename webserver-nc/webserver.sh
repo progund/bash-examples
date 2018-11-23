@@ -31,7 +31,9 @@ header()
     echo ""
 }
 
-LENGTH=$(content | wc -c)
+CONTENT=$(content)
+CLENGTH=$(echo $CONTENT | wc -c)
+LENGTH=$(( $CLENGTH + 4  ))
 
 header
 content
