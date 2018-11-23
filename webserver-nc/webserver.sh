@@ -33,7 +33,9 @@ header()
 
 CONTENT=$(content)
 CLENGTH=$(echo $CONTENT | wc -c)
-LENGTH=$(( $CLENGTH + 4  ))
-
+LENGTH=$(( $CLENGTH + 1 ))
+>>>>>>> 8537eb3d35737008f65f324985de7fff8575c824
 header
-content
+echo ${CONTENT}
+exec 1>&-
+
