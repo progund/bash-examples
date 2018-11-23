@@ -221,65 +221,101 @@ declare -a FAMILY_NAMES=(
 GIRL_SIZE=${#GIRL_NAMES[@]}
 BOY_SIZE=${#BOY_NAMES[@]}
 FAM_SIZE=${#FAMILY_NAMES[@]}
+EMAIL=false
 
 #echo "$GIRL_SIZE $BOY_SIZE $FAM_SIZE"
 
 gen_name() {
-
-    GIRL_IDX=$(( $RANDOM % $GIRL_SIZE))
-    BOY_IDX=$(( $RANDOM % $BOY_SIZE))
     FAM_IDX=$(( $RANDOM % $FAM_SIZE))
-    
-    GIRL=${GIRL_NAMES[$GIRL_IDX]}
-    BOY=${BOY_NAMES[$BOY_IDX]}
     FAM=${FAMILY_NAMES[$FAM_IDX]}
+
+    if [ "$BOY_" = "true" ]
+    then
+	BOY_IDX=$(( $RANDOM % $BOY_SIZE))
+	BOY=${BOY_NAMES[$BOY_IDX]}
+    else
+	BOY=""
+    fi
+
+    if [ "$GIRL_" = "true" ]
+    then
+	GIRL_IDX=$(( $RANDOM % $GIRL_SIZE))
+	GIRL=${GIRL_NAMES[$GIRL_IDX]}
+    else
+	GIRL=""
+    fi
 }
 
-print_person_sub()
+print_person_sub_json()
 {
     GIV_=$1
     FAM_=$2
-    
-    if [ $SQL_MODE ]
-    then
-        echo -n "("
-    fi
-    echo -n "$GIV_"
-    if [ $SQL_MODE ]
-    then
-        echo -n ", "
-    else
-        echo -n " "
-    fi
-    echo -n $FAM_
-    if [ $SQL_MODE ]
-    then
-        echo -n ")"
-    else
-        echo
-    fi
 
+    if [ "$GIV_" != "" ]
+    then
+	echo -n " { \"name\": \"$GIV_ $FAM_\""
+	if [ "$EMAIL" = "true" ]
+	then
+	    echo -n ", \"email\": \"${GIV_}@${FAM_}.com\"" | \
+		awk '{ printf "%s", tolower($0) } '| \
+		sed -e 's,[åä],a,g' -e 's,ö,o,g'
+	fi
+	echo -n "}"
+    fi
+}
+
+print_person_sub_sql()
+{
+    GIV_=$1
+    FAM_=$2
+
+    if [ "$GIV_" != "" ]
+    then
+	echo -n " ('$GIV_ $FAM_'"
+	if [ "$EMAIL" = "true" ]
+	then
+	    echo -n ", '${GIV_}@${FAM_}.com'" | \
+		awk '{ printf "%s", tolower($0) } '| \
+		sed -e 's,[åä],a,g' -e 's,ö,o,g'
+	fi
+	echo -n ")"
+    fi
+}
+
+print_person_sub_txt()
+{
+    GIV_=$1
+    FAM_=$2
+
+    if [ "$GIV_" != "" ]
+    then
+	echo -n "$GIV_ $FAM_"
+	if [ "$EMAIL" = "true" ]
+	then
+	    echo ", ${GIV_}@${FAM_}.com" | \
+		awk '{ printf "%s", tolower($0) } '| \
+		sed -e 's,[åä],a,g' -e 's,ö,o,g'
+	fi
+    fi
 }
 
 print_person(){
     gen_name
-    if [ "$GIRL_" = "true" ]
-    then
-        print_person_sub $GIRL $FAM
-    fi
-
-    if [ "$GIRL_" = "true" ] && [ "$BOY_" = "true" ]
-    then
-        if [ $SQL_MODE ]
-        then
-            echo -n ", "
-        fi
-    fi
     
-    if [ "$BOY_" = "true" ]
+    print_person_sub_$FORMAT "$BOY" "$FAM"
+    if [ "$BOY" != "" ] &&  [ "$GIRL" != "" ];
     then
-        print_person_sub $BOY $FAM
+	if [  "$FORMAT" = "sql" ] 
+	then
+	    echo -n ", "
+	elif [  "$FORMAT" = "json" ] 
+	then
+	    echo ", "
+	else
+	    echo
+	fi
     fi
+    print_person_sub_$FORMAT "$GIRL" "$FAM"
 }
 
 usage()
@@ -294,6 +330,8 @@ usage()
     echo "    generated. Name are generated in the following format"
     echo ""
     echo "        Givenname Familyname"
+    echo "    or"
+    echo "        Givenname Familyname, Email"
     echo ""
     echo "    The names generated are based on the most common"
     echo "    names in Sweden."
@@ -304,18 +342,30 @@ usage()
     echo "     print help text, that is this text :) " 
     echo ""
     echo "  --male, -m " 
-    echo "     generate male name(s). This is default"
+    echo "     generate male name(s)."
+    echo ""
+    echo "  --email, -e " 
+    echo "     generate email addesses as well"
     echo ""
     echo "  --female, -f " 
     echo "     generate male name(s)"
     echo ""
     echo "  --mixed " 
-    echo "     generate mixed male and female name(s)"
+    echo "     generate mixed male and female name(s). Default."
     echo ""
     echo "  --sql " 
-    echo "     Tries to print in SQL friendly syntax"
+    echo "     creates a database (SQLite) with students."
+    echo ""
+    echo "  --json " 
+    echo "     output in JSON format"
     echo ""
     echo "EXAMPLES"
+    echo ""
+    echo "  $PROG"
+    echo "     generates one male and one female name"
+    echo ""
+    echo "  $PROG 2"
+    echo "     generates two male and two female name"
     echo ""
     echo "  $PROG --male"
     echo "     generates one male name"
@@ -332,9 +382,21 @@ usage()
     echo "  $PROG --mixed 10"
     echo "     generates 5 female names and 5 male names"
     echo ""
+    echo "  $PROG --sql 1000"
+    echo "     creates a database (SQLite) with 2000 students (mixed male/female)"
+    echo ""
+    echo "  $PROG --sql --email 1000"
+    echo "     creates a database (SQLite) with 2000 students (incl email)"
+    echo ""
+    echo "  $PROG --json --email 1000"
+    echo "     outputs 2000 students (incl email) in JSON format"
+    echo ""
 }
 
+FORMAT=txt
 NR=1
+GIRL_=true
+BOY_=true
 while [ "$1" != "" ]
       do
           case "$1" in
@@ -354,14 +416,20 @@ while [ "$1" != "" ]
 #                  echo "$BOY $FAM"
                   ;;
               "--sql")
-                  GIRL_=true
-                  BOY_=true
-                  SQL_MODE=true
-#                  echo "$BOY $FAM"
+                  FORMAT=sql
+		  DB_NAME=student
+		  NAME_COL=name
+		  EMAIL_COL=email
+                  ;;
+              "--json")
+                  FORMAT=json
                   ;;
               "--help"|"-h")
                   usage
                   exit 0
+                  ;;
+              "--email"|"-e")
+                  EMAIL=true
                   ;;
               *)
                   NR=$1
@@ -369,19 +437,84 @@ while [ "$1" != "" ]
           esac    
               shift
 done          
-if [ "$NR" != "1" ]
-then
+
+pre_print_txt() {
+    :
+}
+
+pre_print_json() {
+    echo "["
+}
+
+pre_print_sql() {
+    echo -n "CREATE TABLE student(id integer primary key not null, name text not null"
+    if [ "$EMAIL" = "true" ]
+    then
+	echo -n ", email text not null"
+    fi
+    echo ");"
+    
+    echo -n "INSERT INTO $DB_NAME (name"
+    if [ "$EMAIL" = "true" ]
+    then
+	echo -n ", email"
+    fi
+    echo -n ") VALUES "
+}
+
+print_persons() {
+
     while [ $NR -gt 0 ]
     do
-        print_person
-        NR=$(( $NR -1 ))
-        if [ $SQL_MODE ] && [ $NR -gt 0 ] 
-        then
-             echo -n ", "
-        fi
+	print_person
+	NR=$(( $NR - 1 ))
+	if [ $NR -gt 0 ]
+	then
+	    if [  "$FORMAT" = "sql" ] 
+	    then
+		echo -n ", "
+	    elif [  "$FORMAT" = "json" ] 
+	    then
+		echo ", "
+	    else
+		echo
+	    fi
+	fi
+	
     done
+}
+
+post_print_sql() {
+    echo ";"
+}
+
+post_print_txt() {
+    echo
+}
+
+post_print_json() {
+    echo -e "\n]"
+}
+
+print_all() {
+    pre_print_$FORMAT
+    print_persons
+    post_print_$FORMAT
+}
+
+if [  "$FORMAT" = "sql" ]
+then
+    if [ -f ${DB_NAME}.db ]
+    then
+	echo "Moving old ${DB_NAME}.db to ${DB_NAME}-backup.db"
+	mv "${DB_NAME}.db" "${DB_NAME}-backup.db"
+    fi
+    echo -n "Creating SQLite database: "
+    print_all | sqlite3 ${DB_NAME}.db
+    echo  "${DB_NAME}.db    - with" $(sqlite3 ${DB_NAME}.db "SELECT COUNT(*) FROM student;") "students in it"
+    
 else
-    print_person
+    print_all 
 fi
 
 exit 0
