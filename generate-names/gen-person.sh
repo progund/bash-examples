@@ -256,8 +256,7 @@ print_person_sub_java()
 	echo -n "    persons.add(new Person(\"$GIV_ $FAM_\""
 	if [ "$EMAIL" = "true" ]
 	then
-	    echo -n ",\"${GIV_}@${FAM_}.com\"" | \
-		awk '{ printf "%s", tolower($0) } '| \
+	    echo -n ",\"${GIV_,,}@${FAM_,,}.com\"" | \
 		sed -e 's,[åä],a,g' -e 's,ö,o,g'
 	fi
 	echo ");"
@@ -274,9 +273,8 @@ print_person_sub_xml()
 	echo -e "  <person>\n    <name>$GIV_ $FAM_</name>"
 	if [ "$EMAIL" = "true" ]
 	then
-	    echo "    <email>${GIV_}@${FAM_}.com</email>" | \
-		awk '{ printf "%s\n", tolower($0) } '| \
-		sed -e 's,[åä],a,g' -e 's,ö,o,g'
+	    echo "    <email>${GIV_,,}@${FAM_,,}.com</email>" | \
+                sed -e 's,[åä],a,g;s,ö,o,g'
 	fi
 	echo "  </person>"
     fi
@@ -292,8 +290,7 @@ print_person_sub_json()
 	echo -n " { \"name\": \"$GIV_ $FAM_\""
 	if [ "$EMAIL" = "true" ]
 	then
-	    echo -n ", \"email\": \"${GIV_}@${FAM_}.com\"" | \
-		awk '{ printf "%s", tolower($0) } '| \
+	    echo -n ", \"email\": \"${GIV_,,}@${FAM_,,}.com\"" | \
 		sed -e 's,[åä],a,g' -e 's,ö,o,g'
 	fi
 	echo -n "}"
@@ -310,8 +307,7 @@ print_person_sub_sql()
 	echo -n " ('$GIV_ $FAM_'"
 	if [ "$EMAIL" = "true" ]
 	then
-	    echo -n ", '${GIV_}@${FAM_}.com'" | \
-		awk '{ printf "%s", tolower($0) } '| \
+	    echo -n ", '${GIV_,,}@${FAM_,,}.com'" | \
 		sed -e 's,[åä],a,g' -e 's,ö,o,g'
 	fi
 	echo -n ")"
@@ -328,8 +324,7 @@ print_person_sub_txt()
 	echo -n "$GIV_ $FAM_"
 	if [ "$EMAIL" = "true" ]
 	then
-	    echo ", ${GIV_}@${FAM_}.com" | \
-		awk '{ printf "%s", tolower($0) } '| \
+	    echo ", ${GIV_,,}@${FAM_,,}.com" | \
 		sed -e 's,[åä],a,g' -e 's,ö,o,g'
 	fi
     fi
