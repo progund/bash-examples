@@ -271,7 +271,7 @@ print_person_sub_xml()
 
     if [ "$GIV_" != "" ]
     then
-	echo -e "  <person>\n    <name<$GIV_ $FAM_</name>"
+	echo -e "  <person>\n    <name>$GIV_ $FAM_</name>"
 	if [ "$EMAIL" = "true" ]
 	then
 	    echo "    <email>${GIV_}@${FAM_}.com</email>" | \
