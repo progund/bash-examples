@@ -246,6 +246,24 @@ gen_name() {
     fi
 }
 
+print_person_sub_java()
+{
+    GIV_=$1
+    FAM_=$2
+
+    if [ "$GIV_" != "" ]
+    then
+	echo -n "    persons.add(new Person(\"$GIV_ $FAM_\""
+	if [ "$EMAIL" = "true" ]
+	then
+	    echo -n ",\"${GIV_}@${FAM_}.com\"" | \
+		awk '{ printf "%s", tolower($0) } '| \
+		sed -e 's,[åä],a,g' -e 's,ö,o,g'
+	fi
+	echo ");"
+    fi
+}
+
 print_person_sub_json()
 {
     GIV_=$1
@@ -301,7 +319,7 @@ print_person_sub_txt()
 
 print_person(){
     gen_name
-    
+#    echo "FORMAT: $FORMAT"
     print_person_sub_$FORMAT "$BOY" "$FAM"
     if [ "$BOY" != "" ] &&  [ "$GIRL" != "" ];
     then
@@ -311,6 +329,9 @@ print_person(){
 	elif [  "$FORMAT" = "json" ] 
 	then
 	    echo ", "
+	elif [  "$FORMAT" = "java" ] 
+	then
+	    :
 	else
 	    echo
 	fi
@@ -358,6 +379,9 @@ usage()
     echo ""
     echo "  --json " 
     echo "     output in JSON format"
+    echo ""
+    echo "  --java " 
+    echo "     output in Java format (a method returning a List<Person>)."
     echo ""
     echo "EXAMPLES"
     echo ""
@@ -424,6 +448,9 @@ while [ "$1" != "" ]
               "--json")
                   FORMAT=json
                   ;;
+              "--java")
+                  FORMAT=java
+                  ;;
               "--help"|"-h")
                   usage
                   exit 0
@@ -440,6 +467,11 @@ done
 
 pre_print_txt() {
     :
+}
+
+pre_print_java() {
+    echo "  public static List<Person> personList() { "
+    echo "    List<Person> persons = new ArrayList<>(); "
 }
 
 pre_print_json() {
@@ -476,6 +508,9 @@ print_persons() {
 	    elif [  "$FORMAT" = "json" ] 
 	    then
 		echo ", "
+	    elif [  "$FORMAT" = "java" ] 
+	    then
+		:
 	    else
 		echo
 	    fi
@@ -494,6 +529,11 @@ post_print_txt() {
 
 post_print_json() {
     echo -e "\n]"
+}
+
+post_print_java() {
+    echo "    return persons;"
+    echo "  }"
 }
 
 print_all() {
