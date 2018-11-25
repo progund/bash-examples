@@ -365,30 +365,29 @@ usage()
     PROG=$(basename $0)
     echo "NAME"
     echo "    $PROG [OPTIONS] [NR] "
-    echo ""
+    echo 
     echo "SYNOPSIS"
     echo "    Generate one or many (Swedish) names male or female."
     echo "    If you specify  number, that many names are"
-    echo "    generated. Name are generated in the following format"
-    echo ""
-    echo "        Givenname Familyname"
-    echo "    or"
-    echo "        Givenname Familyname, Email"
-    echo ""
+    echo "    generated. Names are generated with or without"
+    echo "    an email address."
+    echo 
+    echo "    Supported output formats: see below"
+    echo 
     echo "    The names generated are based on the most common"
     echo "    names in Sweden."
-    echo ""
+    echo 
     echo "OPTIONS"
-    echo ""
+    echo 
     echo "  --help, -h " 
     echo "     print help text, that is this text :) " 
-    echo ""
+    echo 
     echo "  --male, -m " 
     echo "     generate male name(s)."
-    echo ""
+    echo 
     echo "  --email, -e " 
     echo "     generate email addesses as well"
-    echo ""
+    echo 
     echo "  --female, -f " 
     echo "     generate male name(s)"
     echo ""
