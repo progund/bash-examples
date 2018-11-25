@@ -375,6 +375,9 @@ usage()
     echo "     generate mixed male and female name(s). Default."
     echo ""
     echo "  --sql " 
+    echo "     output in SQL"
+    echo ""
+    echo "  --db " 
     echo "     creates a database (SQLite) with students."
     echo ""
     echo "  --json " 
@@ -421,6 +424,9 @@ FORMAT=txt
 NR=1
 GIRL_=true
 BOY_=true
+DB_NAME=student
+NAME_COL=name
+EMAIL_COL=email
 while [ "$1" != "" ]
       do
           case "$1" in
@@ -441,9 +447,9 @@ while [ "$1" != "" ]
                   ;;
               "--sql")
                   FORMAT=sql
-		  DB_NAME=student
-		  NAME_COL=name
-		  EMAIL_COL=email
+                  ;;
+              "--db")
+                  FORMAT=db
                   ;;
               "--json")
                   FORMAT=json
@@ -542,13 +548,14 @@ print_all() {
     post_print_$FORMAT
 }
 
-if [  "$FORMAT" = "sql" ]
+if [  "$FORMAT" = "db" ]
 then
     if [ -f ${DB_NAME}.db ]
     then
 	echo "Moving old ${DB_NAME}.db to ${DB_NAME}-backup.db"
 	mv "${DB_NAME}.db" "${DB_NAME}-backup.db"
     fi
+    FORMAT=sql
     echo -n "Creating SQLite database: "
     print_all | sqlite3 ${DB_NAME}.db
     echo  "${DB_NAME}.db    - with" $(sqlite3 ${DB_NAME}.db "SELECT COUNT(*) FROM student;") "students in it"
