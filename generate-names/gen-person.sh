@@ -264,6 +264,24 @@ print_person_sub_java()
     fi
 }
 
+print_person_sub_xml()
+{
+    GIV_=$1
+    FAM_=$2
+
+    if [ "$GIV_" != "" ]
+    then
+	echo -e "  <person>\n    <name<$GIV_ $FAM_</name>"
+	if [ "$EMAIL" = "true" ]
+	then
+	    echo "    <email>${GIV_}@${FAM_}.com</email>" | \
+		awk '{ printf "%s\n", tolower($0) } '| \
+		sed -e 's,[åä],a,g' -e 's,ö,o,g'
+	fi
+	echo "  </person>"
+    fi
+}
+
 print_person_sub_json()
 {
     GIV_=$1
@@ -329,6 +347,9 @@ print_person(){
 	elif [  "$FORMAT" = "json" ] 
 	then
 	    echo ", "
+	elif [  "$FORMAT" = "xml" ] 
+	then
+	    :
 	elif [  "$FORMAT" = "java" ] 
 	then
 	    :
@@ -382,6 +403,9 @@ usage()
     echo ""
     echo "  --json " 
     echo "     output in JSON format"
+    echo ""
+    echo "  --xml " 
+    echo "     output in XML format"
     echo ""
     echo "  --java " 
     echo "     output in Java format (a method returning a List<Person>)."
@@ -454,6 +478,9 @@ while [ "$1" != "" ]
               "--json")
                   FORMAT=json
                   ;;
+              "--xml")
+                  FORMAT=xml
+                  ;;
               "--java")
                   FORMAT=java
                   ;;
@@ -482,6 +509,11 @@ pre_print_java() {
 
 pre_print_json() {
     echo "["
+}
+
+pre_print_xml() {
+    echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>'
+    echo "<persons>"
 }
 
 pre_print_sql() {
@@ -514,6 +546,9 @@ print_persons() {
 	    elif [  "$FORMAT" = "json" ] 
 	    then
 		echo ", "
+	    elif [  "$FORMAT" = "xml" ] 
+	    then
+		:
 	    elif [  "$FORMAT" = "java" ] 
 	    then
 		:
@@ -535,6 +570,10 @@ post_print_txt() {
 
 post_print_json() {
     echo -e "\n]"
+}
+
+post_print_xml() {
+    echo -e "</persons>"
 }
 
 post_print_java() {
