@@ -348,6 +348,9 @@ print_person(){
 	elif [  "$FORMAT" = "java" ] 
 	then
 	    :
+	elif [  "$FORMAT" = "txt" ] 
+	then
+	    :
 	else
 	    echo
 	fi
@@ -403,6 +406,9 @@ usage()
     echo ""
     echo "  --java " 
     echo "     output in Java format (a method returning a List<Person>)."
+    echo ""
+    echo "  --txt " 
+    echo "     output in txt format (default)."
     echo ""
     echo "EXAMPLES"
     echo ""
@@ -477,6 +483,9 @@ while [ "$1" != "" ]
                   ;;
               "--java")
                   FORMAT=java
+                  ;;
+              "--txt")
+                  FORMAT=txt
                   ;;
               "--help"|"-h")
                   usage
@@ -559,7 +568,7 @@ post_print_sql() {
 }
 
 post_print_txt() {
-    echo
+    : 
 }
 
 post_print_json() {
