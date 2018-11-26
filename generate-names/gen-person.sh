@@ -358,6 +358,16 @@ print_person(){
     print_person_sub_$FORMAT "$GIRL" "$FAM"
 }
 
+demo()
+{
+    for format in txt json java xml sql db
+    do
+        CMD="$0 --email  --$format"
+        echo "# Typing \"$CMD\"  will give you something like:"
+        $CMD
+    done
+}
+
 usage()
 {
     PROG=$(basename $0)
@@ -391,7 +401,12 @@ usage()
     echo ""
     echo "  --mixed " 
     echo "     generate mixed male and female name(s). Default."
-    echo ""
+    echo 
+    echo "  --demo " 
+    echo "     shows examples of printouts"
+    echo 
+    echo "  FORMAT OPTIONS"
+    echo 
     echo "  --sql " 
     echo "     output in SQL"
     echo ""
@@ -493,6 +508,10 @@ while [ "$1" != "" ]
                   ;;
               "--email"|"-e")
                   EMAIL=true
+                  ;;
+              "--demo"|"-d")
+                  demo
+                  exit 0
                   ;;
               *)
                   NR=$1
