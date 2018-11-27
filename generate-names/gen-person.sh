@@ -350,7 +350,7 @@ print_person(){
 	    :
 	elif [  "$FORMAT" = "txt" ] 
 	then
-	    :
+	    echo
 	else
 	    echo
 	fi
@@ -587,7 +587,7 @@ post_print_sql() {
 }
 
 post_print_txt() {
-    : 
+    echo 
 }
 
 post_print_json() {
