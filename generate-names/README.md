@@ -1,4 +1,4 @@
-# gen_person.sh - script to generate files with persons
+# gen_person.sh - script to generate files with name (and email)
 
 gen_persons.sh is a bash script that can generate names.
 
@@ -7,9 +7,11 @@ gen_persons.sh is a bash script that can generate names.
 * email (optional)
 
 This might be useful if you want to a list of random names. As
-teachers we have found a need for this.
+teachers we have found a need for this and perhaps you have too.
 
 The names are Swedish names.
+
+License: GPLv3
 
 # Manual
 
@@ -54,7 +56,7 @@ OPTIONS
      output in SQL
 
   --db 
-     creates a database (SQLite) with students.
+     creates a database (SQLite) with persons.
 
   --json 
      output in JSON format
@@ -104,13 +106,13 @@ EXAMPLES
      generates 5 female names and 5 male names
 
   gen-person.sh --sql 1000
-     creates a database (SQLite) with 2000 students (mixed male/female)
+     creates a database (SQLite) with 2000 persons (mixed male/female)
 
   gen-person.sh --sql --email 1000
-     creates a database (SQLite) with 2000 students (incl email)
+     creates a database (SQLite) with 2000 persons (incl email)
 
   gen-person.sh --json --email 1000
-     outputs 2000 students (incl email) in JSON format
+     outputs 2000 persons (incl email) in JSON format
 
 ~~~
 
