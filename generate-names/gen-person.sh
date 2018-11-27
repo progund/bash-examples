@@ -641,6 +641,7 @@ create_args()
     then
         CMD_ARGS="$CMD_ARGS --email"
     fi
+    CMD_ARGS="$CMD_ARGS $NR"
 }
 
 if [  "$FORMAT" = "db" ]
@@ -657,8 +658,8 @@ then
 elif [  "$FORMAT" = "xlsx" ] || [  "$FORMAT" = "ods" ]  || [  "$FORMAT" = "html" ]  || [  "$FORMAT" = "pdf" ] 
 then
     rm -f persons.csv
-    create_args
-    $0 $CMD_ARGS --txt > persons.csv
+    create_args  # creat CMS_ARGS
+    $0 --txt $CMD_ARGS  > persons.csv
     soffice --headless --convert-to $FORMAT --infilter="csv:59,34,UTF8"  persons.csv
     if [ -f persons.$FORMAT ]
     then
