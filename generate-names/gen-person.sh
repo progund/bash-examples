@@ -425,6 +425,18 @@ usage()
     echo "  --txt " 
     echo "     output in txt format (default)."
     echo ""
+    echo "  --xls " 
+    echo "     output in xls format (using LibreOffice)."
+    echo ""
+    echo "  --ods " 
+    echo "     output in ods (Open Document) format (using LibreOffice)."
+    echo ""
+    echo "  --html " 
+    echo "     output in HTML format (using LibreOffice)."
+    echo ""
+    echo "  --pdf " 
+    echo "     output in pdf format (using LibreOffice)."
+    echo ""
     echo "EXAMPLES"
     echo ""
     echo "  $PROG"
@@ -501,6 +513,18 @@ while [ "$1" != "" ]
                   ;;
               "--txt")
                   FORMAT=txt
+                  ;;
+              "--xls")
+                  FORMAT=xlsx
+                  ;;
+              "--ods")
+                  FORMAT=ods
+                  ;;
+              "--pdf")
+                  FORMAT=pdf
+                  ;;
+              "--html")
+                  FORMAT=html
                   ;;
               "--help"|"-h")
                   usage
@@ -609,6 +633,16 @@ print_all() {
     post_print_$FORMAT
 }
 
+create_args()
+{
+    CMD_ARGS=""
+
+    if [ "$EMAIL" = "true" ]
+    then
+        CMD_ARGS="$CMD_ARGS --email"
+    fi
+}
+
 if [  "$FORMAT" = "db" ]
 then
     if [ -f ${DB_NAME}.db ]
@@ -620,7 +654,19 @@ then
     echo -n "Creating SQLite database: "
     print_all | sqlite3 ${DB_NAME}.db
     echo  "${DB_NAME}.db    - with" $(sqlite3 ${DB_NAME}.db "SELECT COUNT(*) FROM student;") "students in it"
-    
+elif [  "$FORMAT" = "xlsx" ] || [  "$FORMAT" = "ods" ]  || [  "$FORMAT" = "html" ]  || [  "$FORMAT" = "pdf" ] 
+then
+    rm -f persons.csv
+    create_args
+    $0 $CMD_ARGS --txt > persons.csv
+    soffice --headless --convert-to $FORMAT --infilter="csv:59,34,UTF8"  persons.csv
+    if [ -f persons.$FORMAT ]
+    then
+        echo "Created: persons.$FORMAT"
+    else
+        echo "Failed creating $FORMAT file"
+        exit 1
+    fi
 else
     print_all 
 fi
