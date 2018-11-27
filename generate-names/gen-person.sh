@@ -324,7 +324,7 @@ print_person_sub_txt()
 	echo -n "$GIV_ $FAM_"
 	if [ "$EMAIL" = "true" ]
 	then
-	    echo ", ${GIV_,,}@${FAM_,,}.com" | \
+	    echo -n ", ${GIV_,,}@${FAM_,,}.com" | \
 		sed -e 's,[åä],a,g' -e 's,ö,o,g'
 	fi
     fi
