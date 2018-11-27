@@ -360,7 +360,7 @@ print_person(){
 
 demo()
 {
-    for format in txt json java xml sql db
+    for format in txt json java xml sql db ods xls pdf html
     do
         CMD="$0 --email  --$format"
         echo "# Typing \"$CMD\"  will give you something like:"
@@ -411,7 +411,7 @@ usage()
     echo "     output in SQL"
     echo ""
     echo "  --db " 
-    echo "     creates a database (SQLite) with students."
+    echo "     creates a database (SQLite) with persons."
     echo ""
     echo "  --json " 
     echo "     output in JSON format"
@@ -461,13 +461,13 @@ usage()
     echo "     generates 5 female names and 5 male names"
     echo ""
     echo "  $PROG --sql 1000"
-    echo "     creates a database (SQLite) with 2000 students (mixed male/female)"
+    echo "     creates a database (SQLite) with 2000 persons (mixed male/female)"
     echo ""
     echo "  $PROG --sql --email 1000"
-    echo "     creates a database (SQLite) with 2000 students (incl email)"
+    echo "     creates a database (SQLite) with 2000 persons (incl email)"
     echo ""
     echo "  $PROG --json --email 1000"
-    echo "     outputs 2000 students (incl email) in JSON format"
+    echo "     outputs 2000 persons (incl email) in JSON format"
     echo ""
 }
 
@@ -475,7 +475,7 @@ FORMAT=txt
 NR=1
 GIRL_=true
 BOY_=true
-DB_NAME=student
+DB_NAME=person
 NAME_COL=name
 EMAIL_COL=email
 while [ "$1" != "" ]
@@ -563,7 +563,7 @@ pre_print_xml() {
 }
 
 pre_print_sql() {
-    echo -n "CREATE TABLE student(id integer primary key not null, name text not null"
+    echo -n "CREATE TABLE person(id integer primary key not null, name text not null"
     if [ "$EMAIL" = "true" ]
     then
 	echo -n ", email text not null"
@@ -654,7 +654,7 @@ then
     FORMAT=sql
     echo -n "Creating SQLite database: "
     print_all | sqlite3 ${DB_NAME}.db
-    echo  "${DB_NAME}.db    - with" $(sqlite3 ${DB_NAME}.db "SELECT COUNT(*) FROM student;") "students in it"
+    echo  "${DB_NAME}.db    - with" $(sqlite3 ${DB_NAME}.db "SELECT COUNT(*) FROM person;") "persons in it"
 elif [  "$FORMAT" = "xlsx" ] || [  "$FORMAT" = "ods" ]  || [  "$FORMAT" = "html" ]  || [  "$FORMAT" = "pdf" ] 
 then
     rm -f persons.csv
