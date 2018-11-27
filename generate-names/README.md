@@ -30,6 +30,9 @@ SYNOPSIS
     The names generated are based on the most common
     names in Sweden.
 
+    Text formats are printed to stdout. For other formats
+    a file is created
+
 OPTIONS
 
   --help, -h 

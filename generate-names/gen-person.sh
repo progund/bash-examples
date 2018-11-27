@@ -384,6 +384,9 @@ usage()
     echo 
     echo "    The names generated are based on the most common"
     echo "    names in Sweden."
+    echo
+    echo "    Text formats are printed to stdout. For other formats"
+    echo "    a file is created"
     echo 
     echo "OPTIONS"
     echo 
