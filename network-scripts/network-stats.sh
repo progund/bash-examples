@@ -5,6 +5,7 @@ GW_GU=gu151a-gw.net.gu.se
 WWW_COMHEM=www.comhem.se
 WWW_CHALMERS=www.chalmers.se
 NS1_CHALMERS=ns1.chalmers.se
+
 HOSTS_TO_CHECK="ftp.sunet.se gu151a-gw.net.gu.se www.comhem.se www.chalmers.se ns1.chalmers.se "
 
 ONLY_ETH=true
@@ -46,13 +47,38 @@ check_host(){
     mtr -c 3 -r $host 2>&1
 }
 
-modprobe iwlmvm iwlwifi
-wait_for_network
-bring_if $ETH_DEVICE up
-wait_for_network
-bring_if $WLAN_DEVICE up
-while true
-do
+list_interfaces(){
+    ip addr show|grep ^[0-9]|cut -d ':' -f 2
+}
+
+essid(){
+    iwconfig wlan0|grep SSID|rev|awk '{print $1;}'|rev
+}
+
+gateway(){
+    netstat -rn|grep ^0.0.0.0|awk '{print $2;}'
+}
+
+eth_dev(){
+    ip addr show|grep ^[0-9]|cut -d ':' -f 2|tr -d ' '|grep ^en
+}
+
+wlan_dev(){
+    ip addr show|grep ^[0-9]|cut -d ':' -f 2|tr -d ' '|grep ^wl
+}
+
+show_diag(){
+    echo "Interfaces:"
+    list_interfaces
+    echo "Connected to wlan essid:"
+    essid
+    echo "Gateway:"
+    gateway
+    echo "ehternet device name: $(eth_dev)"
+    echo "wireless device name: $(wlan_dev)"
+}
+
+toggle_interface(){
     if $ONLY_ETH
     then
         echo "===Only cable==="
@@ -73,8 +99,29 @@ do
         INTERFACE="wireless wlan"
         ONLY_ETH=true
     fi
+}
+
+############### main ##############################
+
+echo -n "Please wait for wireless and cabled network to come up..."
+modprobe iwlmvm iwlwifi # needed on ubuntu...
+wait_for_network
+bring_if $ETH_DEVICE up
+wait_for_network
+bring_if $WLAN_DEVICE up
+wait_for_network
+echo "networks are up"
+sleep 0.5
+echo "Some diagnostics:"
+show_diag
+echo
+echo "Statistics go to $LOG_FILE until you kill this script."
+
+while true
+do
+    toggle_interface
     echo
-    echo "Running diagnostics using $INTERFACE"
+    echo "Running statistics using $INTERFACE"
     echo
 
     for host in $HOSTS_TO_CHECK
