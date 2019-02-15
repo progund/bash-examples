@@ -26,11 +26,21 @@ exit_on_error()
 }
 
 err() {
-    echo -e "$*" 1>&2
+    if [ "$QUIET" = "true" ]
+    then
+        :
+    else
+        echo -e "$*" 1>&2
+    fi
 }
 
 errn() {
-    echo -n -e "$*" 1>&2
+    if [ "$QUIET" = "true" ]
+    then
+        :
+    else
+        echo -n -e "$*" 1>&2
+    fi
 }
 
 REGEXP=""
@@ -53,6 +63,13 @@ do
             ;;
         "--csv")
             CSV=true
+            ;;
+        "--sites")
+            echo $SITES
+            exit 0
+            ;;
+        "--quiet")
+            QUIET=true
             ;;
         *)
             REGEXP="$REGEXP $1"
@@ -98,6 +115,7 @@ do
 done
 err ""
 
+
 for reg in $REGEXP
 do
     if [ "$CSV" = "true" ]
@@ -110,7 +128,7 @@ do
     for site in $SITES
     do
         TMP_FILE=$TMP_DIR/$(echo $site | sed 's,[/.],_,g').txt
-        CNT=$(grep -c $reg $TMP_FILE)
+        CNT=$(grep -o $reg $TMP_FILE | wc -l)
         if [ "$CSV" = "true" ]
         then
             echo "$reg,$site,$CNT"
