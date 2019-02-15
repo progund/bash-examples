@@ -8,6 +8,8 @@ EXPIRATION_MINUTES=1
 TMP_DIR=/tmp/$USER/dwgrep-tmp
 mkdir -p $TMP_DIR
 
+CSV=false
+
 exit_on_error()
 {
     RET=$1
@@ -21,6 +23,14 @@ exit_on_error()
         fi
         exit $RET
     fi
+}
+
+err() {
+    echo -e "$*" 1>&2
+}
+
+errn() {
+    echo -n -e "$*" 1>&2
 }
 
 REGEXP=""
@@ -41,6 +51,9 @@ do
         "--no-cache")
             EXPIRATION_MINUTES=0
             ;;
+        "--csv")
+            CSV=true
+            ;;
         *)
             REGEXP="$REGEXP $1"
             ;;
@@ -58,10 +71,10 @@ fi
 #
 # Add sites
 #
-for site in $*
-do
-    SITES="$SITES $site"
-done
+#for site in $*
+#do
+#    SITES="$SITES $site"
+#done
 
 #
 # Check tools
@@ -72,29 +85,45 @@ exit_on_error $? "w3m not found"
 for site in $SITES
 do
     STR="Getting $site"
-    echo -n "$STR"
+    errn "$STR"
     TMP_FILE=$TMP_DIR/$(echo $site | sed 's,[/.],_,g').txt
     if [ ! -f $TMP_FILE ] || [ "$(find $TMP_FILE -mmin +$EXPIRATION_MINUTES)" != "" ] 
     then
         w3m -dump $site 2>/dev/null > $TMP_FILE
         exit_on_error $? "Failed downloading $site"
     fi
-    printf "\r"
+    errn "\r"
     for i in $(seq 1 ${#STR}) ; do printf " "; done
-    printf "\r"
+    errn "\r"
 done
+err ""
 
 for reg in $REGEXP
 do
-    echo "$reg"
+    if [ "$CSV" = "true" ]
+    then
+        echo -e -n "\r"
+    else
+        echo "$reg"
+    fi
     TOT=0
     for site in $SITES
     do
-        printf " * %30s: " $site
         TMP_FILE=$TMP_DIR/$(echo $site | sed 's,[/.],_,g').txt
         CNT=$(grep -c $reg $TMP_FILE)
-        echo "$CNT"
+        if [ "$CSV" = "true" ]
+        then
+            echo "$reg,$site,$CNT"
+        else
+            printf " * %30s: " $site
+            echo "$CNT"
+        fi
         TOT=$(( $TOT + $CNT ))
     done
-    echo " * total: $TOT"
+    if [ "$CSV" = "true" ]
+    then
+        :
+    else
+        echo " * total: $TOT"
+    fi
 done
