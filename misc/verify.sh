@@ -25,7 +25,7 @@ xmllint
 
 for cmd in $REQUIRED_COMMANDS
 do
-    verify $cmd
+    verify "$cmd"
 done
 
 
