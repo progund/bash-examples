@@ -226,12 +226,12 @@ EMAIL=false
 #echo "$GIRL_SIZE $BOY_SIZE $FAM_SIZE"
 
 gen_name() {
-    FAM_IDX=$(( $RANDOM % $FAM_SIZE))
+    FAM_IDX=$(( RANDOM % FAM_SIZE))
     FAM=${FAMILY_NAMES[$FAM_IDX]}
 
     if [ "$BOY_" = "true" ]
     then
-	BOY_IDX=$(( $RANDOM % $BOY_SIZE))
+	BOY_IDX=$(( RANDOM % BOY_SIZE))
 	BOY=${BOY_NAMES[$BOY_IDX]}
     else
 	BOY=""
@@ -239,7 +239,7 @@ gen_name() {
 
     if [ "$GIRL_" = "true" ]
     then
-	GIRL_IDX=$(( $RANDOM % $GIRL_SIZE))
+	GIRL_IDX=$(( RANDOM % GIRL_SIZE))
 	GIRL=${GIRL_NAMES[$GIRL_IDX]}
     else
 	GIRL=""
@@ -333,7 +333,7 @@ print_person_sub_txt()
 print_person(){
     gen_name
 #    echo "FORMAT: $FORMAT"
-    print_person_sub_$FORMAT "$BOY" "$FAM"
+    "print_person_sub_$FORMAT" "$BOY" "$FAM"
     if [ "$BOY" != "" ] &&  [ "$GIRL" != "" ];
     then
 	if [  "$FORMAT" = "sql" ] 
@@ -355,7 +355,7 @@ print_person(){
 	    echo
 	fi
     fi
-    print_person_sub_$FORMAT "$GIRL" "$FAM"
+    "print_person_sub_$FORMAT" "$GIRL" "$FAM"
 }
 
 demo()
@@ -370,7 +370,7 @@ demo()
 
 usage()
 {
-    PROG=$(basename $0)
+    PROG=$(basename "$0")
     echo "NAME"
     echo "    $PROG [OPTIONS] [NR] "
     echo 
@@ -479,8 +479,8 @@ NR=1
 GIRL_=true
 BOY_=true
 DB_NAME=person
-NAME_COL=name
-EMAIL_COL=email
+#NAME_COL=name
+#EMAIL_COL=email
 while [ "$1" != "" ]
       do
           case "$1" in
@@ -583,11 +583,11 @@ pre_print_sql() {
 
 print_persons() {
 
-    while [ $NR -gt 0 ]
+    while [ "$NR" -gt 0 ]
     do
 	print_person
-	NR=$(( $NR - 1 ))
-	if [ $NR -gt 0 ]
+	NR=$(( NR - 1 ))
+	if [ "$NR" -gt 0 ]
 	then
 	    if [  "$FORMAT" = "sql" ] 
 	    then
@@ -649,22 +649,22 @@ create_args()
 
 if [  "$FORMAT" = "db" ]
 then
-    if [ -f ${DB_NAME}.db ]
+    if [ -f "${DB_NAME}.db" ]
     then
 	echo "Moving old ${DB_NAME}.db to ${DB_NAME}-backup.db"
 	mv "${DB_NAME}.db" "${DB_NAME}-backup.db"
     fi
     FORMAT=sql
     echo -n "Creating SQLite database: "
-    print_all | sqlite3 ${DB_NAME}.db
-    echo  "${DB_NAME}.db    - with" $(sqlite3 ${DB_NAME}.db "SELECT COUNT(*) FROM person;") "persons in it"
+    print_all | sqlite3 "${DB_NAME}.db"
+    echo  "${DB_NAME}.db    - with $(sqlite3 ${DB_NAME}.db "SELECT COUNT(*) FROM person;") persons in it"
 elif [  "$FORMAT" = "xlsx" ] || [  "$FORMAT" = "ods" ]  || [  "$FORMAT" = "html" ]  || [  "$FORMAT" = "pdf" ] 
 then
     rm -f persons.csv
     create_args  # creat CMS_ARGS
-    $0 --txt $CMD_ARGS  > persons.csv
-    soffice --headless --convert-to $FORMAT --infilter="csv:59,34,UTF8"  persons.csv
-    if [ -f persons.$FORMAT ]
+    "$0" --txt "$CMD_ARGS"  > persons.csv
+    soffice --headless --convert-to "$FORMAT" --infilter="csv:59,34,UTF8"  persons.csv
+    if [ -f "persons.$FORMAT" ]
     then
         echo "Created: persons.$FORMAT"
     else
