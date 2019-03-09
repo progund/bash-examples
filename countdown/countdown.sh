@@ -32,9 +32,9 @@ do
             #"2004-02-29 16:21:42"
             #"friday"
             #          echo ljsdljsdljf
-            STOP_TIME=$(date "+%s" --date $2)
+            STOP_TIME=$(date "+%s" --date "$2")
             CURR_TIME=$(date "+%s")
-            SECS=$(( $STOP_TIME - $CURR_TIME))
+            SECS=$(( STOP_TIME - CURR_TIME))
  #           echo " $2 ==> " $SECS
             shift
             ;;
@@ -48,7 +48,7 @@ done
 
 
 #echo "$SECS | $MSG | $CMD"
-if [ $SECS -le 0 ]
+if [ "$SECS" -le 0 ]
 then
     echo "Faulty time set"
     exit 1
@@ -63,10 +63,10 @@ tput init
 clear
 COLS=0
 ROWS=0
-while [ 0 -le $CTR ]
+while [ 0 -le "$CTR" ]
 do
 #    date
-    SEC=$(printf '%.4d' $CTR)
+    SEC=$(printf '%.4d' "$CTR")
     STR="$MSG $SEC $SEC_MSG"
     SIZE=${#STR}
 #    echo loop $(date)
@@ -74,7 +74,7 @@ do
     then
         LAST_COLS=$COLS
         LAST_ROWS=$ROWS
-        export COLS=$(( ($(tput cols) - $SIZE)  / 2  ))
+        export COLS=$(( ($(tput cols) - "$SIZE")  / 2  ))
         export ROWS=$(( $(tput lines) / 2 ))
         if [ $LAST_COLS -ne $COLS ] || [ $LAST_ROWS -ne $ROWS ]
         then
@@ -84,23 +84,23 @@ do
 
         
         tput cup $ROWS $COLS
-        echo $STR
+        echo "$STR"
         sleep 1
     else
         echo -n "$STR"
         sleep 1
-        for i in $(seq 1 $SIZE)
+        for i in $(seq 1 "$SIZE")
         do
             echo -en "\b"
         done
     fi
-    CTR=$(( $CTR - 1 ))
+    CTR=$(( CTR - 1 ))
 
 done
 
 #echo ""
 #clear
-echo "  NOW!"
+echo "  NOW!                         "
 if [ "$CMD" != "" ]
 then
     echo "Launching \"$CMD\""
