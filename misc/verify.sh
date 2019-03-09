@@ -8,7 +8,6 @@ verify(){
 }
 
 REQUIRED_COMMANDS="
-asdf
 curl
 jq
 pandoc
@@ -22,11 +21,13 @@ units
 pdftotext
 csvtool
 xmllint
-grodanboll"
+"
+
 for cmd in $REQUIRED_COMMANDS
 do
     verify $cmd
 done
+
 
 if [[ ! -z "$missing" ]]
 then
@@ -35,4 +36,13 @@ then
     echo "Please install and run the script again."
     exit 1
 fi
+
+die() {
+    echo "$1" >&2
+    exit 1
+}
+
+# example checking single command:
+verify asdfasdf || die "asdfasdf missing. Please install."
+
 echo "running the actual script here..."
