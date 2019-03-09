@@ -5,17 +5,17 @@ REGEXP=!!
 
 EXPIRATION_MINUTES=1
 
-TMP_DIR=/tmp/$USER/dwgrep-tmp
-mkdir -p $TMP_DIR
+TMP_DIR="/tmp/$USER/dwgrep-tmp"
+mkdir -p "$TMP_DIR"
 
 CSV=false
 
 exit_on_error()
 {
-    RET=$1
-    CMD="$2"
+    RET="$1"
+    MSG="$2"
 
-    if [ $RET -ne 0 ]
+    if [ "$RET" -ne 0 ]
     then
         if [ "$MSG" != "" ]
         then
@@ -65,7 +65,7 @@ do
             CSV=true
             ;;
         "--sites")
-            echo $SITES
+            echo "$SITES"
             exit 0
             ;;
         "--quiet")
@@ -103,10 +103,10 @@ for site in $SITES
 do
     STR="Getting $site"
     errn "$STR"
-    TMP_FILE=$TMP_DIR/$(echo $site | sed 's,[/.],_,g').txt
-    if [ ! -f $TMP_FILE ] || [ "$(find $TMP_FILE -mmin +$EXPIRATION_MINUTES)" != "" ] 
+    TMP_FILE="$TMP_DIR/$(echo "$site" | sed 's,[/.],_,g').txt"
+    if [ ! -f "$TMP_FILE" ] || [ "$(find "$TMP_FILE" -mmin +$EXPIRATION_MINUTES)" != "" ] 
     then
-        w3m -dump $site 2>/dev/null > $TMP_FILE
+        w3m -dump "$site" 2>/dev/null > "$TMP_FILE"
         exit_on_error $? "Failed downloading $site"
     fi
     errn "\r"
@@ -127,16 +127,16 @@ do
     TOT=0
     for site in $SITES
     do
-        TMP_FILE=$TMP_DIR/$(echo $site | sed 's,[/.],_,g').txt
-        CNT=$(grep -o $reg $TMP_FILE | wc -l)
+        TMP_FILE="$TMP_DIR/$(echo "$site" | sed 's,[/.],_,g').txt"
+        CNT=$(grep -o $reg "$TMP_FILE" | wc -l)
         if [ "$CSV" = "true" ]
         then
             echo "$reg,$site,$CNT"
         else
-            printf " * %30s: " $site
+            printf " * %30s: " "$site"
             echo "$CNT"
         fi
-        TOT=$(( $TOT + $CNT ))
+        TOT=$(( TOT + CNT ))
     done
     if [ "$CSV" = "true" ]
     then
