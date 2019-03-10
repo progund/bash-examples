@@ -2,7 +2,7 @@
 
 FILE=$1
 
-if [ "$FILE" = "" ] || [ ! -f $FILE ]
+if [ "$FILE" = "" ] || [ ! -f "$FILE" ]
 then
     echo "File \"$FILE\" missing or not readable"
     exit
@@ -10,14 +10,14 @@ fi
 
 content()
 {
-    cat $FILE
+    cat "$FILE"
 }
 
 # do your best
 find_file_type()
 {
-    FILE_NAME=$(basename $FILE | tr [A-Z] [a-z])
-    FILE_SUFF=$(echo $FILE_NAME | sed 's,.*\.,,g')
+    FILE_NAME="$(basename "$FILE" | tr A-Z a-z])"
+    FILE_SUFF="$(echo "$FILE_NAME" | sed 's,.*\.,,g')"
 #    echo $FILE_NAME
 #    echo $FILE_SUFF
 
@@ -54,7 +54,7 @@ header()
 
 find_file_type
 
-LENGTH=$(cat $FILE | wc -c)
+LENGTH=$(wc -c "$FILE")
 
 header
 content
