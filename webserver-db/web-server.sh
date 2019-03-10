@@ -7,7 +7,7 @@ SQLITE=sqlite3
 
 sql()
 {
-    echo "$*" | $SQLITE $DB
+    echo "$*;" | $SQLITE $DB
 }
 
 
