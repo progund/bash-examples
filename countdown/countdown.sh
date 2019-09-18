@@ -28,6 +28,9 @@ do
         "--center")
             CENTER=true
             ;;
+        "--scroll")
+            SCROLL=true
+            ;;
         "--time")
             #"2004-02-29 16:21:42"
             #"friday"
@@ -63,11 +66,12 @@ tput init
 clear
 COLS=0
 ROWS=0
+SCROLL_OFFSET=0
 while [ 0 -le "$CTR" ]
 do
 #    date
     SEC=$(printf '%.4d' "$CTR")
-    STR="$MSG $SEC $SEC_MSG"
+    STR="$MSG $SEC $SEC_MSG "
     SIZE=${#STR}
 #    echo loop $(date)
     if [  "$CENTER" = "true" ]
@@ -80,11 +84,21 @@ do
         then
             clear
         fi
-           
 
         
         tput cup $ROWS $COLS
-        echo "$STR"
+        for i in $(seq 0 ${#STR})
+        do
+            echo -n " "
+        done
+        tput cup $ROWS $COLS
+        for i in $(seq 0 ${#STR})
+        do
+            START=$(( (SCROLL_OFFSET + i  ) % ${#STR} ))
+#            echo -n "$SCROLL_OFFSET | $i | { $START } => "
+            echo -n "${STR:$START:1}"
+        done
+        SCROLL_OFFSET=$(( SCROLL_OFFSET + 1 ))
         sleep 1
     else
         echo -n "$STR"
