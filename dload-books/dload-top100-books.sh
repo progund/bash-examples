@@ -2,7 +2,7 @@
 
 
 BASE_URL="https://www.gutenberg.org"
-URL="$BASE_URL/browse/scores/top"
+TOP_URL="$BASE_URL/browse/scores/top"
 
 BASE_DIR=/tmp/dload100
 FILE=$BASE_DIR/tmp-top.html
@@ -14,7 +14,7 @@ fi
 
 if [ ! -f $FILE  ]
 then
-    curl "$URL" -o $FILE
+    curl "$TOP_URL" -o $FILE
 fi
 
 EBOOK_IDS=$(cat $FILE | grep -A 110 "id=\""books-last1\""" | sed 's,\",\n,g' | grep ebooks)
