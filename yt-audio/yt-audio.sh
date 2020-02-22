@@ -60,6 +60,8 @@ extract_audio()
     then
         echo "Failed extracting audio to ("$MP3_FILE")"
         exit 4
+    else
+        rm "${VIDEO_FILE}"
     fi
 }
 
